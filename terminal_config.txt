@@ -1,0 +1,1 @@
+{"ip": "192.168.199.12", "ipmask": "255.255.255.0", "gateway": "192.168.199.1", "dns1": "114.114.114.114", "dns2": "223.5.5.5", "mac": "", "g4en": "1", "mqttep": "tcp://mqtt.ctwing.cn:1883", "mqttpass": "HbVdirK0oDI4qQ3Jqmmd5iNK_DoBTN_KNuX6s-7mmAg", "despass": "tywlzhyx", "productid": "", "apnname": "", "apnuser": "", "apnpass": "", "sn": ""}

@@ -1,0 +1,72 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Login</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/css/index.css">
+    <script type="text/javascript" src="/js/login.js"></script>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+</head>
+<!--<body onkeydown="keyLogin();">-->
+<div class="container body-box" style="max-width:600px;">
+    <div class="center-block body-content">
+        <div class="form-wrap">
+            <form class="form-horizontal col-sm-8 form-padding" role="form" id="ConfigForm"
+                  name="ConfigForm" method="post" onsubmit="return false" novalidate="novalidate">
+                <div class="form-group">
+                    <table style="position: relative" bordercolor="#e7e7e7" height="45%"
+                           cellspacing="0" cellpadding="0" align="center" border="0">
+                        <tbody>
+                        <tr>
+                            <td align="middle" bgcolor="#ffffff" colspan="3" height="10"><label><img
+                                    height="67" width="287" src="/img/logo.png"></label></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="form-group">
+                        <div class="col-sm-2 control-label">用户<label class="w4-4"
+                                                                     for="ConfirmPassword"></label>
+                        </div>
+                        <div class="col-sm-10 has-feedback"><input id="Username"
+                                                                   class="form-control"
+                                                                   name="Username"> <span
+                                class="text-danger field-validation-valid"
+                                data-valmsg-for="ConfirmPassword" data-valmsg-replace="true"></span>
+                            <span class="glyphicon form-control-feedback"></span></div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-2 control-label">密码<label class="w4-4"
+                                                                     for="ConfirmPassword"></label>
+                        </div>
+                        <div class="col-sm-10 has-feedback"><input id="Password"
+                                                                   class="form-control"
+                                                                   name="Password" type="password">
+                            <span class="text-danger field-validation-valid"
+                                  data-valmsg-for="ConfirmPassword"
+                                  data-valmsg-replace="true"></span> <span
+                                    class="glyphicon form-control-feedback"></span></div>
+                    </div><!--按钮-->
+                    <div class="form-group">
+                        <div class="col-sm-2" style="margin:2px;"></div>
+                        <div class="col-sm-4" style="margin:2px;">
+                            <button onclick="btnlogin()" id="submitBtn" type="button"
+                                    class="btn ladda-button center-block cnblogs-btn-blue"
+                                    data-style="zoom-in"><span class="ladda-label">登录</span>
+                            </button>
+                        </div>
+                        <div class="col-sm-4" style="margin:2px;">
+                            <button id="submirefresh" onclick="RefreshPage()" type="button"
+                                    class="btn ladda-button center-block cnblogs-btn-blue"
+                                    data-style="zoom-in"><span class="ladda-label">取消</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-sm-offset-2"><span class="asterisk">江苏贝特信息技术有限公司</span></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
