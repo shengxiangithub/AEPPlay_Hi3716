@@ -1,6 +1,6 @@
 # encoding=utf-8
 
-import requests, zipfile, json, DESUtils, os
+import requests, zipfile, json, DESUtils, os, Hardware
 from Player import *
 
 
@@ -11,6 +11,9 @@ class AEP(object):
         self.player = Player()
         self.heart = threading.Thread(target=self.update_heart, name="heart_thread")
         self.heart.start()
+        update_some_info_thread = threading.Thread(target=self.update_some_info,
+                                                   name="update_some_info_thread")
+        update_some_info_thread.start()
         self.query_task()
 
     def play_next(self):
@@ -33,7 +36,57 @@ class AEP(object):
             print("上报心跳： " + time.strftime("%Y-%m-%d %H:%M:%S"))
             pack_data = dict(action="update", device_id=Constant.SN, status=Constant.STATUS,
                              task_number=Constant.TASK_NUM, volume=Constant.VOLUME,
-                             rssi=Constant.RSSI)
+                             rssi=Constant.rssi)
+            self.update_pack_data(pack_data)
+        except Exception as e:
+            print(str(e))
+
+    """{ 
+        "action": "info_report", 
+        "device_id": "设备id", 
+        "firmware_version": "ct2.1", 
+        "hardware_version": "v1.2", 
+        "iccid": "iccid编号", 
+    } """
+
+    # 上报iccid和无线参数
+    def update_some_info(self):
+        try:
+            while Constant.MQTT_CLIENT is None or not Constant.MQTT_CLIENT.is_connected():
+                time.sleep(10)
+            Hardware.get_iccid()
+            if "1" == Constant.G4EN and "" == Constant.iccid:
+                time.sleep(60)
+                Hardware.get_iccid()
+                if "" == Constant.iccid:
+                    time.sleep(60)
+                    Hardware.get_iccid()
+            print("上报iccid： " + time.strftime("%Y-%m-%d %H:%M:%S"))
+            pack_data = dict(action="info_report", device_id=Constant.SN, firmware_version="ct2.1",
+                             hardware_version="v1.2", iccid=Constant.iccid)
+            self.update_pack_data(pack_data)
+        except Exception as e:
+            print(str(e))
+
+        if "1" != Constant.G4EN:
+            print("非4G设备不上报基站信息")
+            return
+        """{ 
+                "action": " signal_report", 
+                "device_id": "设备id", 
+                "rsrp": rsrp值, 
+                "pci": pci值, 
+                "ecl": ecl值, 
+                "cell_id": cell_id值, 
+                }"""
+        try:
+            Hardware.get_rsrp_pci_cellid_rssi()
+            while "" == Constant.rsrp or "" == Constant.pci or "" == Constant.cell_id:
+                time.sleep(60)
+                Hardware.get_rsrp_pci_cellid_rssi()
+            print("上报基站信息： " + time.strftime("%Y-%m-%d %H:%M:%S"))
+            pack_data = dict(action="signal_report", device_id=Constant.SN, rsrp=Constant.rsrp,
+                             pci=Constant.pci, ecl=Constant.ecl, cell_id=Constant.cell_id)
             self.update_pack_data(pack_data)
         except Exception as e:
             print(str(e))
@@ -68,6 +121,8 @@ class AEP(object):
     # 查询任务
     def query_task(self):
         try:
+            while Constant.MQTT_CLIENT is None or not Constant.MQTT_CLIENT.is_connected():
+                time.sleep(10)
             time.sleep(1)
             print("查询待播任务...")
             pack_data = dict(action="query_task", device_id=Constant.SN)
@@ -155,7 +210,7 @@ class AEP(object):
                 zfile.extractall(path='./', members=zfile.namelist(), pwd="AEPPlay_Hi3716".encode('utf-8'))
             # zfile.extractall(path='F:\\music', members=zfile.namelist(), pwd="AEPPlay_Hi3716".encode('utf-8'))
             except Exception as e:
-                print("升级失败"+str(e))
+                print("升级失败" + str(e))
                 path = zfile.namelist()[0].split("/")[0]
                 os.system("rm -r " + path)
                 print("删除升级包")
@@ -180,7 +235,7 @@ class AEP(object):
         if Constant.MQTT_CLIENT is not None and Constant.MQTT_CLIENT.is_connected():
             Constant.MQTT_CLIENT.publish("device_control", heart_data_json, 0)
         else:
-            print(" error mqtt 未连接，无法查询任务和上报心跳")
+            print(" error mqtt 未连接，无法查询任务、上报心跳、iccid、基站信息")
 
     def change_platform(self, order_content):
         content = json.loads(order_content, encoding="utf-8")

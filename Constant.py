@@ -1,9 +1,8 @@
 # ecoding=utf-8
-version = "2.2.7"
+version = "8.0.2"
 CONF_FILE_PATH = "/root/terminal_config.txt"
-#CONF_FILE_PATH = "E:\\Workspace\\Python\\web\\terminal_config.txt"
+# CONF_FILE_PATH = "E:\\Workspace\\Python\\web\\terminal_config.txt"
 NAMESERVER_PATH = "/var/resolv.conf"
-
 SERIAL_MAC_PATH = "/db/serial_mac.conf"
 msg_queue = None
 wtire_gpio = None
@@ -36,10 +35,19 @@ MQTT_CLIENT_XXZB = None
 STATUS = 1  # 设备状态 1：待机 2：播放
 TASK_NUM = ""
 VOLUME = 80  # 音量 0-100
-RSSI = 3  # 信号强度 0-5 越大越强
 
 network = 1  # 1:有线，2:4G
 
-time_interval = 0.5
+time_interval = 0.3
 
 input_flag = False
+
+rsrp = ""
+pci = ""
+ecl = ""
+cell_id = ""
+rssi = "0"
+iccid = ""
+
+PAUSE_FLAG = False  # 暂停任务，不删除
+CANCLE_FLAG = False  # 取消任务

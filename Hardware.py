@@ -149,7 +149,7 @@ def check_network():
                 os.system("reboot")
         else:
             if Constant.G4EN:
-                get_csq()
+                get_rsrp_pci_cellid_rssi()
             for i in range(600):  # 等待20分钟后再次检测
                 Constant.wtire_gpio(2, 1)
                 time.sleep(Constant.time_interval)
@@ -162,35 +162,79 @@ def check_network():
 # check_network()
 
 
-def get_csq():
+# def get_csq():
+#     try:
+#         cmd = 'echo "AT+CSQ" > /dev/ttyUSB2  & timeout -t 3 cat /dev/ttyUSB2 | grep CSQ:'
+#         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+#         out, err = p.communicate()
+#         p.wait(3)
+#         csq = None
+#         for line in out.splitlines():
+#             if line is not None and "CSQ:" in str(line) and "," in str(line) and " " in str(line):
+#                 csq = str(line)
+#                 break
+#         csq = int(csq.split(" ")[1].split(",")[0])
+#         # if csq < 10:
+#         #     Constant.RSSI = 0
+#         # elif csq < 15:
+#         #     Constant.RSSI = 1
+#         # elif csq < 20:
+#         #     Constant.RSSI = 2
+#         # elif csq < 23:
+#         #     Constant.RSSI = 3
+#         # elif csq < 26:
+#         #     Constant.RSSI = 4
+#         # elif csq < 32:
+#         #     Constant.RSSI = 5
+#         # else:
+#         #     Constant.RSSI = csq
+#         Constant.RSSI = csq * 2 - 113
+#         print("信号强度：" + str(Constant.RSSI))
+#     except Exception as e:
+#         print("获取信号强度失败" + str(e))
+
+
+def get_iccid():
     try:
-        cmd = 'echo "AT+CSQ" > /dev/ttyUSB2  & timeout -t 3 cat /dev/ttyUSB2 | grep CSQ:'
+        cmd = 'echo "AT+CCID" > /dev/ttyUSB2 & timeout -t 1 cat /dev/ttyUSB2 | grep CCID'
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         out, err = p.communicate()
-        p.wait(3)
-        csq = None
+        p.wait(1)
+        ccid = None
         for line in out.splitlines():
-            if line is not None and "CSQ:" in str(line) and "," in str(line) and " " in str(line):
-                csq = str(line)
+            if line is not None and "+CCID:" in str(line):
+                ccid = str(line)
                 break
-        csq = int(csq.split(" ")[1].split(",")[0])
-        if csq < 10:
-            Constant.RSSI = 0
-        elif csq < 15:
-            Constant.RSSI = 1
-        elif csq < 20:
-            Constant.RSSI = 2
-        elif csq < 23:
-            Constant.RSSI = 3
-        elif csq < 26:
-            Constant.RSSI = 4
-        elif csq < 32:
-            Constant.RSSI = 5
-        else:
-            Constant.RSSI = csq
-        print("信号强度：" + str(Constant.RSSI))
+        Constant.iccid = str(ccid.replace("+CCID: ", ""))
+        print("iccid：" + str(Constant.iccid))
     except Exception as e:
-        print("获取信号强度失败" + str(e))
+        print("获取iccid失败" + str(e))
+
+
+def get_rsrp_pci_cellid_rssi():
+    try:
+        cmd = 'echo "AT+CPSI?" > /dev/ttyUSB2 & timeout -t 1 cat /dev/ttyUSB2 | grep CPSI '
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        out, err = p.communicate()
+        p.wait(1)
+        rsrp_pci_cellid_rssi = None
+        for line in out.splitlines():
+            if line is not None and "+CPSI:" in str(line) and "LTE" in str(line):
+                rsrp_pci_cellid_rssi = str(line)
+                break
+        rsrp_pci_cellid_rssi = rsrp_pci_cellid_rssi.split(",")
+        Constant.rsrp = str(int(rsrp_pci_cellid_rssi[11]/10))
+        Constant.pci = str(rsrp_pci_cellid_rssi[5])
+        Constant.ecl = ""
+        Constant.cell_id = str(rsrp_pci_cellid_rssi[4])
+        Constant.rssi = str(int(int(rsrp_pci_cellid_rssi[12]) / 10))
+        print("rsrp:" + Constant.rsrp)
+        print("pci:" + Constant.pci)
+        print("ecl:")
+        print("cell_id：" + rsrp_pci_cellid_rssi[4])
+        print("rssi:" + Constant.rssi)
+    except Exception as e:
+        print("获取基站信息失败" + str(e))
 
 
 def switch_voice(open_flag):

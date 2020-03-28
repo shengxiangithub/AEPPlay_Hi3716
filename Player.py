@@ -64,7 +64,7 @@ class Player(object):
                 if self.now_playing_task.get("level") >= self.task_array[0].get("level"):
                     print("当前在播的任务就是优先级最高的任务")
                 else:
-                    self.stop_play()
+                    self.pause_play()
                     print("当前任务被打断，暂停当前任务")
                     self.now_playing_task = self.task_array[0]
                     self.play(self.now_playing_task)
@@ -92,22 +92,27 @@ class Player(object):
         begin_play = int(time.time())
         popen = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE)
         popen.wait()
-        end_play = int(time.time())
-        if end_play - begin_play < 10:  # 播放时间太短，可能有问题，重试一次
-            cmd = "mplayer -af volume=" + volume + " -rtsp-stream-over-tcp -vo null " + task.get("streaming_url")
-            popen = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE)
-            popen.wait()
+        self.now_playing_task = None
+        if Constant.PAUSE_FLAG:
+            print("被打断，暂停播放当前任务")
+        elif Constant.CANCLE_FLAG:
+            print("取消播放")
+            try:
+                self.task_array.remove(task)
+            except Exception as e:
+                print("err" + str(e) + "\n")
+                print("任务已经被平台移除，无需重复移除")
+        else:
+            end_play = int(time.time())
+            if end_play - begin_play < 60:  # 播放时间太短，可能有问题，重试一次
+                cmd = "mplayer -af volume=" + volume + " -rtsp-stream-over-tcp -vo null " + task.get("streaming_url")
+                popen = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE)
+                popen.wait()
+                time.sleep(3)
         Constant.STATUS = 1
         if Constant.msg_queue is not None:
             Constant.TASK_NUM = ""
             Constant.msg_queue.put({"aep_heart": "volume_off"})
-        print("播放完成")
-        self.now_playing_task = None
-        try:
-            self.task_array.remove(task)
-        except Exception as e:
-            print("err" + str(e) + "\n")
-            print("平台播完自动下发了停播指令")
         if Constant.msg_queue is not None:
             Constant.msg_queue.put({"play_next": "play_next"})
 
@@ -115,18 +120,30 @@ class Player(object):
     def stop_play(self):
         popen = subprocess.Popen("killall -9 mplayer", shell=True, stdin=subprocess.PIPE)
         popen.wait()
-        time.sleep(0.5)
+        time.sleep(1)
+
+    def pause_play(self):
+        popen = subprocess.Popen("killall -9 mplayer", shell=True, stdin=subprocess.PIPE)
+        popen.wait()
+        Constant.PAUSE_FLAG = True
+        time.sleep(1)
+        Constant.PAUSE_FLAG = False
 
     # 取消播放
     def cancle_task(self, task_number):
         if self.task_array is not None and len(self.task_array) > 0:
             for i in range(len(self.task_array)):
                 if task_number == self.task_array[i].get(task_number):
-                    self.task_array.remove(self.task_array[i])
                     print("从任务队列里面移除任务" + str(task_number))
+                    try:
+                        self.task_array.remove(self.task_array[i])
+                    except Exception as e:
+                        print("任务重复移除：" + str(e))
         if self.now_playing_task is not None and task_number == self.now_playing_task.get("task_number"):
             print("取消的是正在播放的任务")
+            Constant.CANCLE_FLAG = True
             self.stop_play()
+            Constant.CANCLE_FLAG = False
         else:
             print("取消的是任务队列里的任务")
 

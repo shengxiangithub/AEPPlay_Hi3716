@@ -64,22 +64,6 @@ class Mqtt():
         Constant.MQTT_CLIENT_XXZB = client
         client.subscribe(Constant.SN, 0)
         Constant.msg_queue.put({"on_connected": {"connected_code": str(rc)}})
-        # if self.heart_thread_xxzb is None or not self.heart_thread_xxzb.isAlive():
-        #     self.heart_thread_xxzb = threading.Thread(target=self.heart_xxzb, args=[client],
-        #                                               name='heart_thread_xxzb')
-        #     self.heart_thread_xxzb.start()
-
-    # # 信息制播平台心跳
-    # def heart_xxzb(self, client):
-    #     try:
-    #         pack_data = dict(serialNo=Constant.SN, devStatus="5", devSignal="2")
-    #         pack_json = json.dumps(pack_data)
-    #         print("xxzb 上报心跳  " + time.strftime("%Y-%m-%d %H:%M:%S"))
-    #         self.client.publish("client_heartbeat", pack_json, 0)
-    #     except Exception as e:
-    #         print(str(e))
-    #     time.sleep(60)
-    #     self.heart_xxzb()
 
     def on_message(self, client, userdata, msg):
         json_str = msg.payload.decode("utf-8")
@@ -99,7 +83,7 @@ class Mqtt():
 
     def on_disconnect(self, client, userdata, rc):
         print("mqtt断开连接")
-        Constant.time_interval=0.5
+        Constant.time_interval = 0.3
         client.reconnect()
 
 

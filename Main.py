@@ -127,7 +127,7 @@ class Main(object):
             headers = {'content-type': "application/json"}
             param = {"serialNo": Constant.SN, "version": Constant.version, "modelName": "EB-TE-PA50-05",
                      "cardNum": "",
-                     "network": 1}
+                     "network": Constant.network}
             res = requests.post(Constant.START_SERVICE_URL + "/rest/Terminal/v1/startService", json=param,
                                 headers=headers, verify=False, timeout=10)
             json_res = json.loads(res.text, encoding='utf-8')
