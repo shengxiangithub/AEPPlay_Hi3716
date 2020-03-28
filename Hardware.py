@@ -204,8 +204,10 @@ def get_iccid():
         for line in out.splitlines():
             if line is not None and "+CCID:" in str(line):
                 ccid = str(line)
+                print(">>>>>>>>>>>1 iccid" + ccid)
                 break
-        Constant.iccid = str(ccid.replace("+CCID: ", ""))
+        Constant.iccid = str(ccid.replace("+CCID: ", "").replace("b'", "").replace("'", ""))
+        print(">>>>>>>>>>>2 iccid" + ccid)
         print("iccid：" + str(Constant.iccid))
     except Exception as e:
         print("获取iccid失败" + str(e))
@@ -223,7 +225,7 @@ def get_rsrp_pci_cellid_rssi():
                 rsrp_pci_cellid_rssi = str(line)
                 break
         rsrp_pci_cellid_rssi = rsrp_pci_cellid_rssi.split(",")
-        Constant.rsrp = str(int(rsrp_pci_cellid_rssi[11]/10))
+        Constant.rsrp = str(int(rsrp_pci_cellid_rssi[11]) / 10)
         Constant.pci = str(rsrp_pci_cellid_rssi[5])
         Constant.ecl = ""
         Constant.cell_id = str(rsrp_pci_cellid_rssi[4])

@@ -1,5 +1,5 @@
 # ecoding=utf-8
-version = "8.0.2"
+version = "8.0.3"
 CONF_FILE_PATH = "/root/terminal_config.txt"
 # CONF_FILE_PATH = "E:\\Workspace\\Python\\web\\terminal_config.txt"
 NAMESERVER_PATH = "/var/resolv.conf"
