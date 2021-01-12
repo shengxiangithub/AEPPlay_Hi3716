@@ -96,6 +96,14 @@ def read_serial():
             elif "get_csq" in value:
                 cmd = 'echo "AT+CSQ" > /dev/ttyUSB2  & timeout -t 3 cat /dev/ttyUSB2 | grep CSQ:'
                 os.system(cmd)
+            elif "check_usb" in value:
+                cmd = 'cat /mnt/sda1/usb_check.txt'
+                os.system(cmd)
+            elif "get_device_status" in value:
+                if Constant.MQTT_CLIENT is not None and Constant.MQTT_CLIENT.is_connected():
+                    print("status: online")
+                else:
+                    print("status: offline")
             elif "test_play" in value:
                 Constant.wtire_gpio(4, 1)
                 Constant.wtire_gpio(2, 1)
@@ -123,7 +131,7 @@ def read_serial():
 
 
 def check_thread(main_obj):
-    for i in range(300):
+    for i in range(1500):
         Constant.wtire_gpio(2, 1)
         time.sleep(Constant.time_interval)
         Constant.wtire_gpio(2, 0)
@@ -158,41 +166,6 @@ def check_network():
     # TODO 递归次数不能太多
 
 
-# Constant.msg_queue.put("check_network")
-# check_network()
-
-
-# def get_csq():
-#     try:
-#         cmd = 'echo "AT+CSQ" > /dev/ttyUSB2  & timeout -t 3 cat /dev/ttyUSB2 | grep CSQ:'
-#         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-#         out, err = p.communicate()
-#         p.wait(3)
-#         csq = None
-#         for line in out.splitlines():
-#             if line is not None and "CSQ:" in str(line) and "," in str(line) and " " in str(line):
-#                 csq = str(line)
-#                 break
-#         csq = int(csq.split(" ")[1].split(",")[0])
-#         # if csq < 10:
-#         #     Constant.RSSI = 0
-#         # elif csq < 15:
-#         #     Constant.RSSI = 1
-#         # elif csq < 20:
-#         #     Constant.RSSI = 2
-#         # elif csq < 23:
-#         #     Constant.RSSI = 3
-#         # elif csq < 26:
-#         #     Constant.RSSI = 4
-#         # elif csq < 32:
-#         #     Constant.RSSI = 5
-#         # else:
-#         #     Constant.RSSI = csq
-#         Constant.RSSI = csq * 2 - 113
-#         print("信号强度：" + str(Constant.RSSI))
-#     except Exception as e:
-#         print("获取信号强度失败" + str(e))
-
 
 def get_iccid():
     try:
@@ -225,7 +198,7 @@ def get_rsrp_pci_cellid_rssi():
                 rsrp_pci_cellid_rssi = str(line)
                 break
         rsrp_pci_cellid_rssi = rsrp_pci_cellid_rssi.split(",")
-        Constant.rsrp = str(int(rsrp_pci_cellid_rssi[11]) / 10)
+        Constant.rsrp = str(int(int(rsrp_pci_cellid_rssi[11]) / 10))
         Constant.pci = str(rsrp_pci_cellid_rssi[5])
         Constant.ecl = ""
         Constant.cell_id = str(rsrp_pci_cellid_rssi[4])

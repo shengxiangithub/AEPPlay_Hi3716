@@ -25,20 +25,21 @@ class Main(object):
 
     def waite_write_sn_mac(self):
         Hardware.wait_sn_mac_info()
-        while True:
-            value = input()
-            if "serialwrite" in value:
-                value = value.replace("serialwrite", "").replace(" ", "").replace("\"", "").replace("'", "")
-                if value is not None:
-                    FileUtil.set_conf(Constant.SERIAL_MAC_PATH, "sn_mac", "SN", value)
-                    print("\n===SN OK !\n")
-            elif "writemac" in value:
-                value = value.replace("writemac", "").replace(" ", "").replace("\"", "").replace("'", "")
-                if value is not None:
-                    FileUtil.set_conf(Constant.SERIAL_MAC_PATH, "sn_mac", "MAC", value)
-                    print("\n===MAC OK\n")
-            elif "reboot" in value:
-                os.system("reboot")
+        Hardware.read_serial()
+        # while True:
+        #     value = input()
+        #     if "serialwrite" in value:
+        #         value = value.replace("serialwrite", "").replace(" ", "").replace("\"", "").replace("'", "")
+        #         if value is not None:
+        #             FileUtil.set_conf(Constant.SERIAL_MAC_PATH, "sn_mac", "SN", value)
+        #             print("\n===SN OK !\n")
+        #     elif "writemac" in value:
+        #         value = value.replace("writemac", "").replace(" ", "").replace("\"", "").replace("'", "")
+        #         if value is not None:
+        #             FileUtil.set_conf(Constant.SERIAL_MAC_PATH, "sn_mac", "MAC", value)
+        #             print("\n===MAC OK\n")
+        #     elif "reboot" in value:
+        #         os.system("reboot")
 
     # 初始化配置文件
     def init_terminal_conf(self):
